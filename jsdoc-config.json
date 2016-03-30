@@ -1,0 +1,44 @@
+{
+	"tags": {
+		"allowUnknownTags" : true
+	},
+    
+	"plugins": ["plugins/markdown"],
+	"templates": {
+        "applicationName": "SuitJS",
+        "navigationImage": "http://www.suitjs.com/img/logo-64.png",
+		"cleverLinks":      true,
+		"monospaceLinks":   true,
+        "linenums":         true,
+		"disqus":           "suitjs",
+		"googleAnalytics":  "UA-75143185-1",        
+        
+		"default": {
+			"outputSourceFiles" : true
+		},
+        
+		"openGraph": {
+			"title":        "SuitJS",
+			"type":         "website",
+			"image":        "http://suitjs.com/img/logo-og-big.png",
+			"site_name":    "SuitJS",
+			"url":          "http://suitjs.com/docs/"
+		},
+        
+		"meta": {
+			"title":        "SuitJS",
+			"description":  "A comfortable framework.",
+			"keyword":      "javascript,framework,mvc,suitjs,haxe,typescript,animation,mvc,indexedDB,storage,component,webcomponent,request,ajax"
+		},
+        
+        "link":{
+            "favicon": "http://suitjs.com/favicon.png"
+        }
+        
+	},
+	"markdown": {
+		"parser":   "gfm",
+		"hardwrap": true,
+		"tags":     ["examples"]
+	}
+}
