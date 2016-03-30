@@ -1,0 +1,2 @@
+# suitjs-docs
+Documentation project.
