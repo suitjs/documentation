@@ -9,6 +9,14 @@ Creates the jsdoc for all libraries.
 * `npm run build`
 * Check the `deploy` folder
 
+# Update
+* `npm run update`
+* `npm run build`
+
+# Test
+* `npm run serve`
+* **[Localhost](http://localhost:8082/deploy/)**
+
 # Documentation
 For in depth information of the API, visit the **[documentation](http://www.suitjs.com/docs/)**. 
 
