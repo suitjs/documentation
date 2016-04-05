@@ -794,289 +794,687 @@
     </ul>
 </div>
     <div class="main">
-        <h1 class="page-title" data-filename="suitjs-lapel_js_lapel.doc.js.html">Source: suitjs-lapel/js/lapel.doc.js</h1>
+        <h1 class="page-title" data-filename="g__development_project_web_thelab_suitjs_documentation_source_reel.doc.js.html">Source: g:/development/project/web/thelab/suitjs/documentation/source/reel.doc.js</h1>
         
 
 
     
     <section>
         <article>
-            <pre class="prettyprint source linenums"><code>/**
-* Class that implements the feature of webcomponents and extends the functionalities of Suit.
+            <pre class="prettyprint source linenums"><code>
+/**
+ * Linear easing.
+ * @class
+ * @type {Linear}
+ * @description
+ * Formula
+ * `return x;`
+ */
+var Linear = function(v) { return v; }
+
+/**
+* Class that implements the animation/tweening features of SuitJS.
 * @class
-* @type Lapel
+* @type Reel
 */
-var Lapel = {};
+var Reel={};
 (function(window,document,body) {
 
-"use strict";
+	"use strict";
 
-console.log("Lapel> Init v1.0.0");
+	console.log("Reel> Init v1.0.0");
 
-//Blocks the mutation handling while components are parsed.
-var m_mutationLock = false;
-
-//Reference to the first parse.
-var m_schedulerId = -1;
-
-//Flag that indicates Lapel has made the first setup.
-var m_booted = false;
-
-//Flag that indicates the Suit core framework exists in the page.
-var m_hasSuit = window.Suit != null;
-
-/**
- * Container for added components. 
- * @type {LapelComponent[]}
- */
-Lapel.components = [];
-
-//Helper function to validate if a variable is null or the wrong type and return a default result.
-function assert(v,d,t) { return t==null ? (v==null ? d : v) : ((typeof(v)==t) ? v : d);	}
-
-/**
- * Lapel Web Component.
- * @typedef {Object} LapelComponent
- * @property {String} tag - HTML tag that defines this component. Lapel will either replace or insert the 'src' contents based on this tag.
- * @property {String} src - HTML content that will either replace or fill the Element.
- * @property {?Boolean} inner - Flag that tells if 'src' will replace the tag or fill it. Defaults to true.
- * @property {LapelComponentCallback} init - Method that handles this component initialization. Setup your logic on this callback.     
- */
-
-/**
- * Lapel Component Init Callback.
- * @typedef {Object} LapelComponentCallback
- * @property {Element|Element[]} element - Created DOM Element. Allows to do extra operations using the new created component reference. If the 'src' of the component is made of several tags an Array is returned.       
- */
-
-/**
- * Finds a LapelComponent template based on its tag name. If none is found, null is returned.
- * @param	{String} p_tag - HTML tag of the template. 
- * @returns {LapelComponent} - Reference to the lapel component template.
- * @example
- * //Define a simple component. 
- * Lapel.add({
- *  tag: "my-component",
- *  src: "&lt;div class='my-component'>&lt;/div>"
- * });
- * 
- * var c = Lapel.find("my-component");
- * console.log(c); //{ tag: 'my-component', src: "&lt;div class='my-component'>&lt;/div>" }
- */
-Lapel.find = 
-function find(p_tag) {
-
-    var l = Lapel.components;
-    for (var i=0;i&lt;l.length;i++) if (l[i].tag == p_tag) return l[i];
-    return null;
-};
-
-/**
- * Creates a new instance of a LapelComponent.
- * @param  {String|LapelComponent} p_tag - Name of the template's tag or reference to the component itself.
- * @param  {?Object} p_attribs - Table of attributes for the created Element.
- * @param  {?String} p_src - String that can fill the 'textContent' variable of the created Element. Defaults to empty.
- * @returns {Element} - Reference to the created Element with features of the component.
- * @example
- * //Define a simple component.
- * ```js 
- * Lapel.add({
- *  tag: "custom-button",
- *  src: "&lt;button class='custom'>&lt;/button>"
- * });
- * 
- * var bt = Lapel.create("custom-button",{name: "cbutton"},"Click Me!");
- * console.log(bt); //&lt;button class='custom' name="cbutton">Click Me!&lt;/button>
- * ```
- */
-Lapel.create =
-function create(p_tag,p_attribs,p_src) {
-
-    var c = (typeof(p_tag)=="string") ? Lapel.find(p_tag) : p_tag;
-
-    if (c == null) { console.error("Lapel> Component ["+p_tag+"] not found"); return null; }
+	if(window.Servant==null) { console.error("Reel> Servant framework wasn't found!"); return; }
     
-    var it = document.createElement(c.tag);
+    //List of supported units.
+    var m_units = ["px","%","em","rem","mm","cm","vw","vh","vmin","vmax","ex","ch","cm","pt","pc"];
     
-    if (p_attribs != null) for(var s in p_attribs) it.setAttribute(s,p_attribs[s]);
+     /**
+     * Function that transforms the animation progress and eases the rate of change of the animated value.
+     * @callback Easing
+     * @param {Number} p_progress - Animation progress inside the range `[0.0,1.0]`.
+     * @returns {Number} - Returns the mapped progress inside the range `[0.0,1.0]`.
+     */     
     
-    if (p_src != null) it.textContent = p_src;
-
-    return it;
-};
-
-/**
- * Register a new component to the component pool.
- * @param  {LapelComponent} p_component - Reference to the Lapel component.
- * @returns {LapelComponent} - Reference to the added component.
- * @example
- * In the page javascript.
- * ```js
- * var c = {
- *  tag: "custom-component",
- *  src: "&lt;div class='custom'>&lt;/div>",
- *  init: function(p_element) {`
- *      p_element.textContent = "I'm Here.";
- *  },
- *  inner: false
- * };
- * Lapel.add(c);
- * ```
- * The original HTML have the custom tag. 
- * ```html 
- * &lt;custom-component>Original Text&lt;/custom-component>
- * ```
- * Then after init.
- * ```html
- * &lt;div class='custom'>I'm Here.&lt;/div>
- * ```
- * If `inner` is true, then the result would be.
- * ```html
- * &lt;custom-component>&lt;div class='custom'>I'm Here.&lt;/div>&lt;/component>
- * ```
- */
-Lapel.add =	
-function add(p_component) {		
-
-    var l = Lapel.components;
-    if (l.indexOf(p_component) >= 0) return p_component;
+     /**
+     * Animation node.
+     * @typedef {Object} ReelAnimation
+     * @property {Object} target - Target object being animated.
+     * @property {String} property - Property name.
+     * @property {Object} value - Final value.
+     * @property {Easing} easing - Animation easing.
+     * @property {Number} delay - Delay in seconds.
+     * @property {Number} duration - Duration in seconds.
+     * @property {Number} elapsed - Elapsed time of execution in seconds.
+     * @property {Number} progress - Animation progress in the range `[0.0,1.0]`.
+     * @property {?(String|Function)} oncomplete - On complete callback. Can be either a function or `Suit`notification string. 
+     * @property {?Boolean} runOnBackground - Flag that indicates this node will keep running when the tab isn't focused.
+     * @property {Function} update() - Execution method.    
+     */ 
     
-    var fn  = null;
-    var evt = m_hasSuit ? "component" : "load";
-    window.addEventListener(evt,
-    fn = function lapelOnInit(ev) {
+	/**
+	* List of active animations.
+    * @type {ReelAnimation[]}
+	*/
+	Reel.list = [];
 
-        if (m_schedulerId >= 0) window.clearInterval(m_schedulerId);
-        m_schedulerId = window.setTimeout(function() { m_lapelBoot(); }, 1);			
-        l.push(p_component);
-        window.removeEventListener(evt,fn);
-    });		
+	/**
+	* Default duration in seconds when none is specified. Defaults to '0.3' seconds.
+    * @type {Number}
+	*/
+	Reel.defaultDuration = 0.3;
 
-    if(p_component.inner==null) p_component.inner = true;
-    if(p_component.init==null)  p_component.init  = null;
+    /**
+     * Default easing when none is specified. Defaults to 'Linear'.
+     * @type {Easing}
+     */
+	Reel.defaultEasing = Linear;
 
-    return p_component;
-};
+    /**
+     * Adds an Animation to the execution loop.
+	 * @param  {Object} p_target - Target object being animated.
+	 * @param  {String} p_property - Property to animate.
+	 * @param  {Object} p_value - Final value of the property.
+	 * @param  {?Number} p_duration - Duration in seconds. Defaults to `Reel.defaultDuration`.
+	 * @param  {?Number} p_delay - Delay before animation. Defaults to `0.0`.
+	 * @param  {?Easing} p_easing - Animation easing. Defaults to `Reel.defaultEasing`.
+	 * @param  {?Boolean} p_run_on_background - Flag that indicates the loop will keep running when the tab isn't focused.
+     * @returns {ReelAnimation} - Reference to the animation node created.
+     * @example
+     * var b = document.body;
+     * b.style.backgroundColor = "#fff";
+     * //Will animate with defaultEasing the 'body' background color during 3s but waiting 1s to start.
+     * Reel.add(b.style,"backgroundColor","#f00",3.0,1.0,Cubic.out);
+	 */    
+	Reel.add =	
+	function add(p_target,p_property,p_value,p_duration,p_delay,p_easing,p_run_on_background) {  
 
-//Startup Lapel after the first components.
-var m_lapelBoot = 
-function boot() {		
+		var a 		   = Servant;		
+		var dl 		   = p_delay    == null ? 0.0 : p_delay;
+		var d  		   = p_duration == null ? Reel.defaultDuration : p_duration;
+		var fn 		   = p_easing   == null ? Reel.defaultEasing : p_easing;
+		var hasStart  = false;
+		var hasFinish = false;
+		var v0		   = null;		
+		var l		   = Reel.list;
+		var isString  = typeof(p_target[p_property]) == "string";
+		var isNumber  = typeof(p_target[p_property]) == "number";
+		var isObject  = typeof(p_target[p_property]) == "object";
+		var vf		   = isString ? (p_value+"") : p_value;
+		var unit       = "";
+		var isColor   = false;
+		
+		var c		   = {r:0,g:0,b:0};
 
-    if (!m_booted) {			
+		if(isString) {
 
-        m_mutationLock = false;
-        if (window.MutationObserver != null) {
+			var v   = vf.toLowerCase();
+			unit    = "";
+            for(var i=0;i&lt;m_units.length;i++) { if(v.indexOf(m_units[i])  >= 0) { unit = m_units[i]; break; } }             
+			isColor = (v.indexOf("rgb") >= 0) ? true : false;			
 
-            var mo = new MutationObserver(m_lapelOnMutation);
-            mo.observe(body, { subtree:true, childList:true } );
-        }
-        else {
+			if(!isColor) {
 
-            console.warn("Lapel> MutationObserver not found!");
-        }
-    }
-    
-    m_lapelSchedule();
-    
-    m_booted = true;
-};
+				if(v.indexOf("#")>=0) {
 
-//Sweeps the DOM and insert components where they should appear.
-var m_lapelParse =
-function parse() {		
+					v      = v.replace("#","");
+					var cr = parseInt(v.length >= 6 ? v.substr(0,2) : v.substr(0,1)+v.substr(0,1),16);
+					var cg = parseInt(v.length >= 6 ? v.substr(2,2) : v.substr(1,1)+v.substr(1,1),16);
+					var cb = parseInt(v.length >= 6 ? v.substr(4,2) : v.substr(2,1)+v.substr(2,1),16);
+					vf = "rgb("+cr+","+cg+","+cb+")";
+					isColor = true;
+				}
+			}
+		}
+		
+		var res = 
+		a.run(function(n) {			
 
-    var cl = Lapel.components;
-    
-    for (var i=0;i&lt;cl.length;i++) {
+			if(!hasStart) {
 
-        var c = cl[i];
-        var l = body.querySelectorAll(c.tag);
+				Reel.stop(p_target,p_property,[n]);				
 
-        for (var j=0;j&lt;l.length;j++) {				
+				v0 = p_target[p_property];				
+				if(isString) {					
 
-            var v 		= l[j];
-            var attribs = v.attributes;				
-            var text    = v.textContent;
+					if(isColor) {
 
-            if (v.isParsed != null) if (v.isParsed) continue;
+						if(v0 == "") v0 = "rgb(255,255,255)";						
+						v0 = v0.replace("rgb","").replace("(","").replace(")","").split(",");									
+						vf = vf.replace("rgb","").replace("(","").replace(")","").split(",");						
+						v0 = {r: parseInt(v0[0]), g: parseInt(v0[1]), b: parseInt(v0[2])};
+						vf = {r: parseInt(vf[0]), g: parseInt(vf[1]), b: parseInt(vf[2])};
+					}
+					else {
 
-            v.isParsed  = true;				
-            v.innerHTML = c.src.replace("$text", text);
-
-            m_lapelParseElement(c,v);
-        }
-    }		
-};
-
-//Finishes parsing the component element.
-var m_lapelParseElement =
-function parseElement(p_component,p_target) 	{
-
-    var v = p_target;
-    var c = p_component;
-
-    window.setTimeout(
-    function() {
-
-        var p = v.parentElement;					
-        for (var i=0; i&lt;v.children.length;i++) {	
-
-            var vc = v.children[i];
-            for (var j=0;j&lt;v.classList.length;j++) { 					
-
-                if(!vc.classList.contains(v.classList[j])) vc.classList.add(v.classList[j]);
-            }
+						if(v0 == "") v0 = p_property == "opacity" ? "1.0" : "0.0";
+						v0 = v0.replace(unit,"");
+						v0 = unit == "" ? parseFloat(v0) : parseInt(v0);					
+						vf = vf.replace(unit,"");
+						vf = unit == "" ? parseFloat(vf) : parseInt(vf);
+					}					
+				}										
+				hasStart = true;				
+			}
+			
+			var v1 = null;
             
-            for (var j=0;j&lt;v.attributes.length;j++) { 
+            var r = fn(n.progress);
+			
+			if(isString) {
 
-                var a = v.attributes[j]; 
-                if (a.name == "class") continue;
-                vc.setAttribute(a.name, a.value);
-            }
-        }
-        
-        var is_inner = c.inner == null ? true : c.inner;
+				if(isColor) {
+                                        
+					c.r = Math.floor(v0.r + (vf.r-v0.r) * r);
+					c.g = Math.floor(v0.g + (vf.g-v0.g) * r);
+					c.b = Math.floor(v0.b + (vf.b-v0.b) * r);
+					v1 = "rgb("+c.r+","+c.g+","+c.b+")";
 
-        if (is_inner) { if (c.init != null) c.init(v); return; }
+				}
+				else {
 
-        var l = [];
+					var res = v0 + (vf-v0) * r;
+					
+					if(unit!="") res = Math.floor(res);
 
-        var p = v.parentElement;					
-        for (var i=0;i&lt;v.children.length;i++) {	
+					v1 = res+""+unit;
+				}
+			}
+			else {
 
-            var vc = v.children[i];	
-            l.push(vc);			
-            if (v.nextSibling != null) { p.insertBefore(vc,v); } else { p.appendChild(vc); }
-        }
-        	
-        if(l.length==1) { if (c.init != null) c.init(l[0]); } else
-        if(l.length>1)  { if (c.init != null) c.init(l);	} else 
-        if (c.init != null) c.init();	
-        
-        if(p!=null)p.removeChild(v);					
+				v1 = v0 + (vf-v0) * r;
 
-    }, 1);
-};
+			}	
 
-//Callback that handles DOM changes.
-var m_lapelOnMutation =
-function onMutation(p_records,p_observer) {
-    m_lapelSchedule();
-};
+			p_target[p_property] = v1;
+			
+			if(n.progress >= 1.0) {
+
+				if(!hasFinish) { 
 
 
-//Schedules an atomic callback.
-var m_lapelSchedule =
-function schedule() {
+					if(n.oncomplete != null) {
 
-    if (m_mutationLock) return;
+						if(typeof(n.oncomplete)=="string") {
+							if(window.Suit==null) { 
+								console.error("Reel> Suit framework not found!"); 
+							}
+							window.Suit.controller.dispatch(n.oncomplete,n);
+						}
+						else {
+							n.oncomplete(n);
+						}
+					}
 
-    m_mutationLock = true;		
-    m_lapelParse();
-    window.setTimeout(function() { m_mutationLock = false; }, 2);
-};
+					hasFinish=true; 
+					var idx = l.indexOf(n);
+					if(idx>=0) l.splice(idx,1);					
+				}
+			}			
+		},d,dl,p_run_on_background);
 
-})(window,document,document.body);</code></pre>
+		res.target   = p_target;
+		res.property = p_property;
+		res.value    = p_value;
+		res.easing   = fn;
+		res.delay    = dl;
+
+		l.push(res);
+
+		return res;
+	};
+
+    /**
+     * Remove Animations that matches the specified criteria.
+	 * @param  {Object} p_target - Target object being animated.
+	 * @param  {?String} p_property - Property name to match. Defaults to `""` (stop all).
+	 * @param  {?ReelAnimation[]} p_ignore_list - List of animation nodes that must be ignored in the query.
+     * @example
+     * var b = document.body;
+     * //Starts animations.
+     * Reel.add(b.style,"backgroundColor","#f00",3.0);
+     * Reel.add(b.style,"width","50px",3.0);	 
+     * 
+     * Reel.stop(b,"width"); //Stops only the 'width' animation
+     * Reel.stop(b);         //Stops all animations for 'b'
+	 */    
+	Reel.stop =    
+	function stop(p_target,p_property,p_ignore_list) {		
+
+		var l  	   = Reel.list;
+		
+		var il 	   = p_ignore_list == null ? [] : p_ignore_list;
+		p_property = p_property == null ? "" : p_property;
+
+		for(var i=0;i&lt;l.length;i++) {
+
+			var matchTarget = p_target == null ? true : (l[i].target == p_target);
+
+			if(matchTarget) {
+
+				var matchProperty = (l[i].property == p_property) || (p_property == "");
+
+				if(matchProperty) {
+
+					if(il.indexOf(l[i])&lt;0) {
+
+						Servant.remove(l[i]);
+						l.splice(i--,1);
+					}
+				}
+			}
+		}
+	};
+
+})(window,document,document.body);
+
+/**
+ * Easing Equations by Robert Penner [http://robertpenner.com/easing/]
+ * More information [http://easings.net/]
+ */
+
+var PI2     = Math.PI*2.0;
+var HalfPI  = Math.PI*0.5;
+var PI      = Math.PI;
+
+/**
+ * Quadratic easings.
+ * @class
+ * @type {Quad}
+ */
+var Quad = {};
+(function() {
+    
+    /**
+     * Quadratic In.
+     * Formula
+     * `return x^2;`
+     */
+    Quad.in = function(v) { return v*v; };
+    
+    /**
+     * Quadratic Out.
+     * Formula
+     * `return -x*(x-2);`
+     */
+    Quad.out = function(v) { return -v*(v-2); };
+    
+    /**
+     * Quadratic In-Out
+     * Formula
+     * ```
+     * if ((x*=2.0) &lt; 1.0) return 0.5*x*x;
+	 * return -0.5 * ((--x)*(x-2.0) - 1.0);
+     * ```
+     */
+    Quad.inout = function(v) {   
+        if ((v*=2.0) &lt; 1.0) return 0.5*v*v;
+		return -0.5 * ((--v)*(v-2.0) - 1.0);                
+    };
+    
+})();
+
+/**
+ * Cubic easings.
+ * @class
+ * @type {Cubic}
+ */
+var Cubic = {};
+(function() {
+    
+    /**
+     * Cubic In.
+     * Formula
+     * `return x^3;`
+     */
+    Cubic.in = function(v) { return v*v*v; };
+    
+    /**
+     * Cubic Out.
+     * Formula
+     * `return ((x=x-1)*x*x + 1.0);`
+     */
+    Cubic.out = function(v) { return ((v=v-1)*v*v + 1.0); };
+    
+    /**
+     * Cubic In-Out
+     * Formula
+     * ```
+     * if ((x*=2.0) &lt; 1.0) return 0.5*(x^3);
+     * return 0.5*((x-=2.0)*x*x + 2.0);
+     * ```
+     */
+    Cubic.inout = function(v) {
+        if ((v*=2.0) &lt; 1.0) return 0.5*v*v*v;
+        return 0.5*((v-=2.0)*v*v + 2.0);                
+    };
+    
+})();
+
+/**
+ * Quartic easings.
+ * @class
+ * @type {Quartic}
+ */
+var Quartic = {};
+(function() {
+    
+    /**
+     * Quartic In.
+     * Formula
+     * `return x^4;`
+     */
+    Quartic.in = function(v) { return v*v*v*v; };
+    
+    /**
+     * Cubic Out.
+     * Formula
+     * `return -((x-1)*(x^3))-1;`
+     */
+    Quartic.out = function(v) { return -(((v=v-1.0)*v*v*v) - 1.0); };
+    
+    /**
+     * Quartic In-Out
+     * Formula
+     * ```
+     * if ((x*=2.0) &lt; 1.0) return 0.5*(x^4);
+     * return -0.5 * (((x-=2.0)*(x^3)) - 2.0);
+     * ```
+     */
+    Quartic.inout = function(v) {
+        if ((v*=2.0) &lt; 1.0) return 0.5*v*v*v*v;
+        return -0.5 * ((v-=2.0)*v*v*v - 2.0);                
+    };
+    
+})();
+
+/**
+ * Quintic easings.
+ * @class
+ * @type {Quintic}
+ */
+var Quintic = {};
+(function() {
+    
+    /**
+     * Quintic In.
+     * Formula
+     * `return x^5;`
+     */
+    Quintic.in = function(v) { return v*v*v*v*v; };
+    
+    /**
+     * Quintic Out.
+     * Formula
+     * `return ((x-1)*(x^4)) + 1;`
+     */
+    Quintic.out = function(v) { return ((v=v-1)*v*v*v*v + 1); };
+    
+    /**
+     * Quintic In-Out
+     * Formula
+     * ```
+     * if ((x*=2.0) &lt; 1.0) return 0.5*(x^5);
+     * return 0.5*((x-=2)*(x^4) + 2);
+     * ```
+     */
+    Quintic.inout = function(v) {
+        if ((v*=2.0) &lt; 1.0) return 0.5*v*v*v*v*v;
+        return 0.5*((v-=2)*v*v*v*v + 2);                
+    };
+    
+})();
+
+/**
+ * Sine easings.
+ * @class
+ * @type {Sine}
+ */
+var Sine = {};
+(function() {
+    
+    /**
+     * Sine In.
+     * Formula
+     * `return -cos(x*PI*0.5)+1.0;`
+     */
+    Sine.in = function(v) { return -Math.cos(v * HalfPI) + 1.0; };
+    
+    /**
+     * Sine Out.
+     * Formula
+     * `return sin(x*PI*0.5);`
+     */
+    Sine.out = function(v) { return Math.sin(v * HalfPI); };
+    
+    /**
+     * Sine In-Out
+     * Formula
+     * `return -0.5*(cos(PI*x)-1.0);`
+     */
+    Sine.inout = function(v) { return -0.5 * (Math.cos(PI*v) - 1.0); };
+    
+})();
+
+/**
+ * Exponential easings.
+ * @class
+ * @type {Expo}
+ */
+var Expo = {};
+(function() {
+    
+    /**
+     * Expo In.
+     * Formula
+     * `return x==0.0 ? 0.0 : 2.0^(10.0 * (x-1));`
+     */
+    Expo.in = function(v) { return (Math.abs(v)&lt;=0.0001) ? 0 : Math.pow(2.0, 10.0 * (v - 1.0)); };
+    
+    /**
+     * Expo Out.
+     * Formula
+     * `return x==1.0 ? 1.0 : (-2.0^(-10.0*x))+1.0;`
+     */
+    Expo.out = function(v) { return Math.abs(v-1.0)&lt;=0.0001 ? 1.0 : -Math.pow(2.0, -10.0 * v) + 1; };
+    
+    /**
+     * Expo In-Out
+     * Formula
+     * ```
+     *  if(x==0.0) return 0.0;
+     *  if(x==1.0) return 1.0;		
+     *	if ((x*=2.0) &lt; 1.0) return 0.5 * Math.pow(2.0, 10.0 * (x - 1));
+	 *	return 0.5 * (-Math.pow(2.0, -10.0 * (--x)) + 2.0); 
+     * ```
+     */
+    Expo.inout = function(v) {
+        if (Math.abs(v)    &lt;=0.0001) return 0.0;
+        if (Math.abs(v-1.0)&lt;=0.0001) return 1.0;		
+		if ((v*=2.0) &lt; 1.0) return 0.5 * Math.pow(2.0, 10.0 * (v - 1));
+		return 0.5 * (-Math.pow(2.0, -10.0 * (--v)) + 2.0);                
+    };
+    
+})();
+
+/**
+ * Circular easings.
+ * @class
+ * @type {Circ}
+ */
+var Circ = {};
+(function() {
+    
+    /**
+     * Circ In.
+     * Formula
+     * `return -(sqrt(1.0 - (x^2)) - 1.0);`
+     */
+    Circ.in = function(v) { return -(Math.sqrt(1.0 - (v*v)) - 1.0); };
+    
+    /**
+     * Circ Out.
+     * Formula
+     * `return sqrt(1.0 - (x=x-1)*x);`
+     */
+    Circ.out = function(v) { return Math.sqrt(1.0 - (v=v-1)*v); };
+    
+    /**
+     * Circ In-Out
+     * Formula
+     * ```
+     * if ((x*=2.0) &lt; 1.0) return -0.5 * (sqrt(1.0 - (x^2)) - 1.0);
+     * return 0.5 * (sqrt(1.0 - (x-=2.0)*x) + 1.0);
+     * ```
+     */
+    Circ.inout = function(v) {
+        if ((v*=2.0) &lt; 1.0) return -0.5 * (Math.sqrt(1.0 - (v*v)) - 1.0);
+		return 0.5 * (Math.sqrt(1.0 - (v-=2.0)*v) + 1.0);        
+    };
+    
+})();
+
+/**
+ * Elastic easings.
+ * @class
+ * @type {Elastic}
+ */
+var Elastic = {};
+(function() {
+    
+    /**
+     * Elastic In.
+     * Formula
+     * ```
+     * if(x==0.0) return 0.0;
+     * if(x==1.0) return 1.0;
+     * return -((2.0^(10.0*(x-=1)) * sin((x-0.075)*PI*2.0*3.3333));
+     * ```
+     */
+    Elastic.in = function(v) {            
+		if (Math.abs(v)    &lt;=0.0001) return 0.0;
+        if (Math.abs(v-1.0)&lt;=0.0001) return 1.0;
+		return -(Math.pow(2.0,10.0*(v-=1)) * Math.sin( (v-0.075)*PI2*3.3333));
+    };
+    
+    /**
+     * Elastic Out.
+     * Formula
+     * ```
+     * if(x==0.0) return 0.0;
+     * if(x==1.0) return 1.0;
+     * return (2.0^(-10.0*x)) * sin((x-0.075)*PI*2.0*3.3333)+1.0);
+     * ```
+
+     */
+    Elastic.out = function(v) {        
+        if (Math.abs(v)    &lt;=0.0001) return 0.0;
+        if (Math.abs(v-1.0)&lt;=0.0001) return 1.0;
+        return (Math.pow(2.0,-10.0*v) * Math.sin((v-0.075)*PI2*3.3333)+1.0);        
+    };
+    
+    /**
+     * Elastic In-Out
+     * Formula
+     * ```
+     * if(x==0.0) return 0.0;
+     * if(x==1.0) return 1.0;
+     * if (x &lt; 1.0) return -0.5*((2.0^(10.0*(x-=1.0)))*sin((x-0.1125)*PI*2.0*2.2222));
+     * return (pow(2.0,-10.0*(x-=1)) * sin((x-0.1125)*PI2*2.22222)*0.5) + 1.0;
+     * ```
+     */
+    Elastic.inout = function(v) {        
+        if (Math.abs(v)     &lt;=0.0001) return 0.0;  
+        if (Math.abs(v-1.0) &lt;=0.0001) return 1.0;
+        if (v &lt; 1.0) return -0.5*(Math.pow(2.0,10.0*(v-=1.0)) * Math.sin((v-0.1125)*PI2*2.2222));
+        return (Math.pow(2.0,-10.0*(v-=1)) * Math.sin((v-0.1125)*PI2*2.22222)*0.5) + 1.0;
+    };
+    
+})();
+
+/**
+ * Back easings.
+ * @class
+ * @type {Elastic}
+ */
+var Back = {};
+(function() {
+    
+    /**
+     * Back In.
+     * Formula
+     * `return  (x^2)*((2.70158*x) - 1.70158);`
+     */
+    Back.in = function(v) { return v*v*((2.70158*v) - 1.70158); };
+    
+    /**
+     * Back Out.
+     * Formula
+     * `return ((x-1)*x*((2.70158*x) + 1.70158) + 1.0);`
+     */
+    Back.out = function(v) { return ((v=v-1.0)*v*((2.70158*v) + 1.70158) + 1.0); };
+    
+    /**
+     * Back In-Out
+     * Formula
+     * ```
+     * if ((x*=2.0) &lt; 1.0) return 0.5*((x^2)*((3.5949095*x) - 2.5949095));
+	 * return 0.5*((x-=2.0)*x*((3.5949095)*x + 2.5949095) + 2.0);
+     * ```
+     */
+    Back.inout = function(v) {
+        if ((v*=2.0) &lt; 1.0) return 0.5*(v*v*((3.5949095*v) - 2.5949095));
+        return 0.5*((v-=2.0)*v*((3.5949095)*v + 2.5949095) + 2.0);        		
+    };
+    
+})();
+
+/**
+ * Bounce easings.
+ * @class
+ * @type {Bounce}
+ */
+var Bounce = {};
+(function() {
+    
+    /**
+     * Bounce In.
+     * Formula
+     * `return 1.0 - Bounce.out(1.0-x);`
+     */
+    Bounce.in = function(v) { return 1.0 - Bounce.out(1.0-v); };
+    
+    /**
+     * Bounce Out.
+     * Formula
+     * ```
+     *  if (x &lt; 0.363636) return (7.5625*x*x); else 
+     *  if (x &lt; 0.727272) return ((7.5625*(x-=0.545454)*x) + 0.75); else 
+     *  if (x &lt; 0.909090) return ((7.5625*(x-=0.818181)*x) + 0.9375); else			
+	 *	return ((7.5625*(x-=0.954545)*x) + 0.984375); 
+     * ```
+     */
+    Bounce.out = function(v) {
+        if (v &lt; 0.363636) return (7.5625*v*v); else 
+        if (v &lt; 0.727272) return ((7.5625*(v-=0.545454)*v) + 0.75); else 
+        if (v &lt; 0.909090) return ((7.5625*(v-=0.818181)*v) + 0.9375); else			
+		return ((7.5625*(v-=0.954545)*v) + 0.984375); 
+    };
+    
+    /**
+     * Bounce In-Out
+     * Formula
+     * ```
+     *  if (x &lt; 0.5) return Bounce.in(x*2) * 0.5;
+	 *	return (Bounce.out((x*2.0)-1.0) * 0.5) + 0.5;
+     * ```
+     */
+    Bounce.inout = function(v) {
+        if (v &lt; 0.5) return Bounce.in(v*2) * 0.5;
+		return (Bounce.out((v*2.0)-1.0) * 0.5) + 0.5;                
+    };
+    
+})();</code></pre>
         </article>
     </section>
 
@@ -1094,7 +1492,7 @@ function schedule() {
         
 
         <footer>
-            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Mon Apr 04 2016 23:29:46 GMT-0300 (Hora oficial do Brasil)
+            Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.0</a> on Tue Apr 05 2016 00:36:39 GMT-0300 (E. South America Standard Time)
         </footer>
     </div>
 </div>

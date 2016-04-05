@@ -15,7 +15,7 @@
   "homepage": "http://www.suitjs.com",
   "dependencies": {
       "del":     "^2.0.0",
-      "request": "^2.0.0"   
+      "request": "^2.0.0"         
   },
   "scripts": {
     "init":   "npm install && npm install -g http-server && npm install -g jsdoc && npm run update",
