@@ -1,13 +1,17 @@
+/**
+ * Container class for all easings.
+ * @class
+ * @type {Ease}
+ */
+var Ease = {};
 
 /**
  * Linear easing.
- * @class
- * @type {Linear}
  * @description
  * Formula
  * `return x;`
  */
-var Linear = function(v) { return v; }
+Ease.linear = function(v) { return v; }
 
 /**
 * Class that implements the animation/tweening features of SuitJS.
@@ -274,12 +278,13 @@ var PI2     = Math.PI*2.0;
 var HalfPI  = Math.PI*0.5;
 var PI      = Math.PI;
 
+
 /**
  * Quadratic easings.
- * @class
+ * @class  
  * @type {Quad}
  */
-var Quad = {};
+Ease.quad = {};
 (function() {
     
     /**
@@ -287,14 +292,14 @@ var Quad = {};
      * Formula
      * `return x^2;`
      */
-    Quad.in = function(v) { return v*v; };
+    Ease.quad.in = function(v) { return v*v; };
     
     /**
      * Quadratic Out.
      * Formula
      * `return -x*(x-2);`
      */
-    Quad.out = function(v) { return -v*(v-2); };
+    Ease.quad.out = function(v) { return -v*(v-2); };
     
     /**
      * Quadratic In-Out
@@ -304,7 +309,7 @@ var Quad = {};
 	 * return -0.5 * ((--x)*(x-2.0) - 1.0);
      * ```
      */
-    Quad.inout = function(v) {   
+    Ease.quad.inout = function(v) {   
         if ((v*=2.0) < 1.0) return 0.5*v*v;
 		return -0.5 * ((--v)*(v-2.0) - 1.0);                
     };
@@ -316,7 +321,7 @@ var Quad = {};
  * @class
  * @type {Cubic}
  */
-var Cubic = {};
+Ease.cubic = {};
 (function() {
     
     /**
@@ -324,14 +329,14 @@ var Cubic = {};
      * Formula
      * `return x^3;`
      */
-    Cubic.in = function(v) { return v*v*v; };
+    Ease.cubic.in = function(v) { return v*v*v; };
     
     /**
      * Cubic Out.
      * Formula
      * `return ((x=x-1)*x*x + 1.0);`
      */
-    Cubic.out = function(v) { return ((v=v-1)*v*v + 1.0); };
+    Ease.cubic.out = function(v) { return ((v=v-1)*v*v + 1.0); };
     
     /**
      * Cubic In-Out
@@ -341,7 +346,7 @@ var Cubic = {};
      * return 0.5*((x-=2.0)*x*x + 2.0);
      * ```
      */
-    Cubic.inout = function(v) {
+    Ease.cubic.inout = function(v) {
         if ((v*=2.0) < 1.0) return 0.5*v*v*v;
         return 0.5*((v-=2.0)*v*v + 2.0);                
     };
@@ -353,7 +358,7 @@ var Cubic = {};
  * @class
  * @type {Quartic}
  */
-var Quartic = {};
+Ease.quartic = {};
 (function() {
     
     /**
@@ -361,14 +366,14 @@ var Quartic = {};
      * Formula
      * `return x^4;`
      */
-    Quartic.in = function(v) { return v*v*v*v; };
+    Ease.quartic.in = function(v) { return v*v*v*v; };
     
     /**
      * Cubic Out.
      * Formula
      * `return -((x-1)*(x^3))-1;`
      */
-    Quartic.out = function(v) { return -(((v=v-1.0)*v*v*v) - 1.0); };
+    Ease.quartic.out = function(v) { return -(((v=v-1.0)*v*v*v) - 1.0); };
     
     /**
      * Quartic In-Out
@@ -378,7 +383,7 @@ var Quartic = {};
      * return -0.5 * (((x-=2.0)*(x^3)) - 2.0);
      * ```
      */
-    Quartic.inout = function(v) {
+    Ease.quartic.inout = function(v) {
         if ((v*=2.0) < 1.0) return 0.5*v*v*v*v;
         return -0.5 * ((v-=2.0)*v*v*v - 2.0);                
     };
@@ -390,7 +395,7 @@ var Quartic = {};
  * @class
  * @type {Quintic}
  */
-var Quintic = {};
+Ease.quintic = {};
 (function() {
     
     /**
@@ -398,14 +403,14 @@ var Quintic = {};
      * Formula
      * `return x^5;`
      */
-    Quintic.in = function(v) { return v*v*v*v*v; };
+    Ease.quintic.in = function(v) { return v*v*v*v*v; };
     
     /**
      * Quintic Out.
      * Formula
      * `return ((x-1)*(x^4)) + 1;`
      */
-    Quintic.out = function(v) { return ((v=v-1)*v*v*v*v + 1); };
+    Ease.quintic.out = function(v) { return ((v=v-1)*v*v*v*v + 1); };
     
     /**
      * Quintic In-Out
@@ -415,7 +420,7 @@ var Quintic = {};
      * return 0.5*((x-=2)*(x^4) + 2);
      * ```
      */
-    Quintic.inout = function(v) {
+    Ease.quintic.inout = function(v) {
         if ((v*=2.0) < 1.0) return 0.5*v*v*v*v*v;
         return 0.5*((v-=2)*v*v*v*v + 2);                
     };
@@ -427,7 +432,7 @@ var Quintic = {};
  * @class
  * @type {Sine}
  */
-var Sine = {};
+Ease.sine = {};
 (function() {
     
     /**
@@ -435,21 +440,21 @@ var Sine = {};
      * Formula
      * `return -cos(x*PI*0.5)+1.0;`
      */
-    Sine.in = function(v) { return -Math.cos(v * HalfPI) + 1.0; };
+    Ease.sine.in = function(v) { return -Math.cos(v * HalfPI) + 1.0; };
     
     /**
      * Sine Out.
      * Formula
      * `return sin(x*PI*0.5);`
      */
-    Sine.out = function(v) { return Math.sin(v * HalfPI); };
+    Ease.sine.out = function(v) { return Math.sin(v * HalfPI); };
     
     /**
      * Sine In-Out
      * Formula
      * `return -0.5*(cos(PI*x)-1.0);`
      */
-    Sine.inout = function(v) { return -0.5 * (Math.cos(PI*v) - 1.0); };
+    Ease.sine.inout = function(v) { return -0.5 * (Math.cos(PI*v) - 1.0); };
     
 })();
 
@@ -458,7 +463,7 @@ var Sine = {};
  * @class
  * @type {Expo}
  */
-var Expo = {};
+Ease.expo = {};
 (function() {
     
     /**
@@ -466,14 +471,14 @@ var Expo = {};
      * Formula
      * `return x==0.0 ? 0.0 : 2.0^(10.0 * (x-1));`
      */
-    Expo.in = function(v) { return (Math.abs(v)<=0.0001) ? 0 : Math.pow(2.0, 10.0 * (v - 1.0)); };
+    Ease.expo.in = function(v) { return (Math.abs(v)<=0.0001) ? 0 : Math.pow(2.0, 10.0 * (v - 1.0)); };
     
     /**
      * Expo Out.
      * Formula
      * `return x==1.0 ? 1.0 : (-2.0^(-10.0*x))+1.0;`
      */
-    Expo.out = function(v) { return Math.abs(v-1.0)<=0.0001 ? 1.0 : -Math.pow(2.0, -10.0 * v) + 1; };
+    Ease.expo.out = function(v) { return Math.abs(v-1.0)<=0.0001 ? 1.0 : -Math.pow(2.0, -10.0 * v) + 1; };
     
     /**
      * Expo In-Out
@@ -485,7 +490,7 @@ var Expo = {};
 	 *	return 0.5 * (-Math.pow(2.0, -10.0 * (--x)) + 2.0); 
      * ```
      */
-    Expo.inout = function(v) {
+    Ease.expo.inout = function(v) {
         if (Math.abs(v)    <=0.0001) return 0.0;
         if (Math.abs(v-1.0)<=0.0001) return 1.0;		
 		if ((v*=2.0) < 1.0) return 0.5 * Math.pow(2.0, 10.0 * (v - 1));
@@ -499,7 +504,7 @@ var Expo = {};
  * @class
  * @type {Circ}
  */
-var Circ = {};
+Ease.circ = {};
 (function() {
     
     /**
@@ -507,14 +512,14 @@ var Circ = {};
      * Formula
      * `return -(sqrt(1.0 - (x^2)) - 1.0);`
      */
-    Circ.in = function(v) { return -(Math.sqrt(1.0 - (v*v)) - 1.0); };
+    Ease.circ.in = function(v) { return -(Math.sqrt(1.0 - (v*v)) - 1.0); };
     
     /**
      * Circ Out.
      * Formula
      * `return sqrt(1.0 - (x=x-1)*x);`
      */
-    Circ.out = function(v) { return Math.sqrt(1.0 - (v=v-1)*v); };
+    Ease.circ.out = function(v) { return Math.sqrt(1.0 - (v=v-1)*v); };
     
     /**
      * Circ In-Out
@@ -524,7 +529,7 @@ var Circ = {};
      * return 0.5 * (sqrt(1.0 - (x-=2.0)*x) + 1.0);
      * ```
      */
-    Circ.inout = function(v) {
+    Ease.circ.inout = function(v) {
         if ((v*=2.0) < 1.0) return -0.5 * (Math.sqrt(1.0 - (v*v)) - 1.0);
 		return 0.5 * (Math.sqrt(1.0 - (v-=2.0)*v) + 1.0);        
     };
@@ -536,7 +541,7 @@ var Circ = {};
  * @class
  * @type {Elastic}
  */
-var Elastic = {};
+Ease.elastic = {};
 (function() {
     
     /**
@@ -548,7 +553,7 @@ var Elastic = {};
      * return -((2.0^(10.0*(x-=1)) * sin((x-0.075)*PI*2.0*3.3333));
      * ```
      */
-    Elastic.in = function(v) {            
+    Ease.elastic.in = function(v) {            
 		if (Math.abs(v)    <=0.0001) return 0.0;
         if (Math.abs(v-1.0)<=0.0001) return 1.0;
 		return -(Math.pow(2.0,10.0*(v-=1)) * Math.sin( (v-0.075)*PI2*3.3333));
@@ -564,7 +569,7 @@ var Elastic = {};
      * ```
 
      */
-    Elastic.out = function(v) {        
+    Ease.elastic.out = function(v) {        
         if (Math.abs(v)    <=0.0001) return 0.0;
         if (Math.abs(v-1.0)<=0.0001) return 1.0;
         return (Math.pow(2.0,-10.0*v) * Math.sin((v-0.075)*PI2*3.3333)+1.0);        
@@ -580,7 +585,7 @@ var Elastic = {};
      * return (pow(2.0,-10.0*(x-=1)) * sin((x-0.1125)*PI2*2.22222)*0.5) + 1.0;
      * ```
      */
-    Elastic.inout = function(v) {        
+    Ease.elastic.inout = function(v) {        
         if (Math.abs(v)     <=0.0001) return 0.0;  
         if (Math.abs(v-1.0) <=0.0001) return 1.0;
         if (v < 1.0) return -0.5*(Math.pow(2.0,10.0*(v-=1.0)) * Math.sin((v-0.1125)*PI2*2.2222));
@@ -594,7 +599,7 @@ var Elastic = {};
  * @class
  * @type {Elastic}
  */
-var Back = {};
+Ease.back = {};
 (function() {
     
     /**
@@ -602,14 +607,14 @@ var Back = {};
      * Formula
      * `return  (x^2)*((2.70158*x) - 1.70158);`
      */
-    Back.in = function(v) { return v*v*((2.70158*v) - 1.70158); };
+    Ease.back.in = function(v) { return v*v*((2.70158*v) - 1.70158); };
     
     /**
      * Back Out.
      * Formula
      * `return ((x-1)*x*((2.70158*x) + 1.70158) + 1.0);`
      */
-    Back.out = function(v) { return ((v=v-1.0)*v*((2.70158*v) + 1.70158) + 1.0); };
+    Ease.back.out = function(v) { return ((v=v-1.0)*v*((2.70158*v) + 1.70158) + 1.0); };
     
     /**
      * Back In-Out
@@ -619,7 +624,7 @@ var Back = {};
 	 * return 0.5*((x-=2.0)*x*((3.5949095)*x + 2.5949095) + 2.0);
      * ```
      */
-    Back.inout = function(v) {
+    Ease.back.inout = function(v) {
         if ((v*=2.0) < 1.0) return 0.5*(v*v*((3.5949095*v) - 2.5949095));
         return 0.5*((v-=2.0)*v*((3.5949095)*v + 2.5949095) + 2.0);        		
     };
@@ -631,7 +636,7 @@ var Back = {};
  * @class
  * @type {Bounce}
  */
-var Bounce = {};
+Ease.bounce = {};
 (function() {
     
     /**
@@ -639,7 +644,7 @@ var Bounce = {};
      * Formula
      * `return 1.0 - Bounce.out(1.0-x);`
      */
-    Bounce.in = function(v) { return 1.0 - Bounce.out(1.0-v); };
+    Ease.bounce.in = function(v) { return 1.0 - Bounce.out(1.0-v); };
     
     /**
      * Bounce Out.
@@ -651,7 +656,7 @@ var Bounce = {};
 	 *	return ((7.5625*(x-=0.954545)*x) + 0.984375); 
      * ```
      */
-    Bounce.out = function(v) {
+    Ease.bounce.out = function(v) {
         if (v < 0.363636) return (7.5625*v*v); else 
         if (v < 0.727272) return ((7.5625*(v-=0.545454)*v) + 0.75); else 
         if (v < 0.909090) return ((7.5625*(v-=0.818181)*v) + 0.9375); else			
@@ -666,7 +671,7 @@ var Bounce = {};
 	 *	return (Bounce.out((x*2.0)-1.0) * 0.5) + 0.5;
      * ```
      */
-    Bounce.inout = function(v) {
+    Ease.bounce.inout = function(v) {
         if (v < 0.5) return Bounce.in(v*2) * 0.5;
 		return (Bounce.out((v*2.0)-1.0) * 0.5) + 0.5;                
     };
