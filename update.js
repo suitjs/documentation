@@ -20,6 +20,8 @@ function loadSource(p_url) {
     var url = p_url;
     var fn  = url.split("/").pop();
     
+    url = url +"?r="+Math.random()*100000.0;
+    
     request(url, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             console.log("update> ["+fn+"] loaded!");            

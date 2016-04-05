@@ -54,11 +54,11 @@ function assert(v,d,t) { return t==null ? (v==null ? d : v) : ((typeof(v)==t) ? 
  * //Define a simple component. 
  * Lapel.add({
  *  tag: "my-component",
- *  src: "<div class='my-component'></div>"
+ *  src: "&lt;div class='my-component'&gt;&lt;/div&gt;"
  * });
  * 
  * var c = Lapel.find("my-component");
- * console.log(c); //{ tag: 'my-component', src: "<div class='my-component'></div>" }
+ * console.log(c); //{ tag: 'my-component', src: "&lt;div class='my-component'&gt;&lt;/div&gt;" }
  */
 Lapel.find = 
 function find(p_tag) {
@@ -106,29 +106,24 @@ function create(p_tag,p_attribs,p_src) {
  * Register a new component to the component pool.
  * @param  {LapelComponent} p_component - Reference to the Lapel component.
  * @returns {LapelComponent} - Reference to the added component.
- * @example
- * In the page javascript.
- * ```js
- * var c = {
+ * @example <caption>Given the script</caption>
+ *  var c = {
  *  tag: "custom-component",
- *  src: "<div class='custom'></div>",
- *  init: function(p_element) {`
+ *  src: "&lt;div class='custom'&gt;&lt;/div&gt;",
+ *  init: function(p_element) {
  *      p_element.textContent = "I'm Here.";
  *  },
  *  inner: false
  * };
  * Lapel.add(c);
- * ```
- * The original HTML have the custom tag. 
+ * @example <caption>Add the custom tag in the HTML</caption> 
  * ```html 
  * <custom-component>Original Text</custom-component>
- * ```
- * Then after init.
- * ```html
+ * 
+ * <!-- After Init -->
  * <div class='custom'>I'm Here.</div>
- * ```
- * If `inner` is true, then the result would be.
- * ```html
+ * 
+ * <!-- If `inner` is true, then the result will be. -->
  * <custom-component><div class='custom'>I'm Here.</div></component>
  * ```
  */
