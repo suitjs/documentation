@@ -1,4 +1,6 @@
 // Place your settings in this file to overwrite default and user settings.
 {
-    "markdown.styles": [".vscode/markdown-theme.css"]    
+    "markdown.styles": [".vscode/markdown-theme.css"],
+    // Controls if the editor will insert spaces for tabs. Accepted values:  "auto", true, false. If set to "auto", the value will be guessed when a file is opened.
+	"editor.insertSpaces": "auto"    
 }

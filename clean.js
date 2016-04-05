@@ -1,2 +1,2 @@
 var del = require("del");
-del(["deploy/"]);
+del.sync(["deploy/"]);

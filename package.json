@@ -14,15 +14,24 @@
   },
   "homepage": "http://www.suitjs.com",
   "dependencies": {
-      "del": "^2.0.0"    
+      "del":     "^2.0.0",
+      "request": "^2.0.0"   
   },
   "scripts": {
     "init":   "npm install && npm install -g http-server && npm install -g jsdoc && npm run update",
     "clean":  "node clean.js",  
-    "update": "bower install suitjs && bower install suitjs-lapel && bower install suitjs-wallet && bower install suitjs-reel && bower install suitjs-servant",
-    "build":  "npm run clean && jsdoc ./source/suitjs/js/suit.doc.js ./source/suitjs-lapel/js/lapel.doc.js ./source/suitjs-wallet/js/wallet.doc.js ./source/suitjs-servant/js/servant.doc.js ./source/suitjs-reel/js/reel.doc.js -d deploy/ -t template/ -c jsdoc-config.json -r DOCS_README.md",
+    "update": "node update.js",
+    "build":  "npm run clean && jsdoc ./source/suit.doc.js ./source/lapel.doc.js ./source/wallet.doc.js ./source/servant.doc.js ./source/reel.doc.js -d deploy/ -t template/ -c jsdoc-config.json -r DOCS_README.md",
     "serve":  "http-server ./ -p 8082"       
   },
+  "sources": [
+      "https://raw.githubusercontent.com/suitjs/core/2fde88e369cd7e465a42a4533f85e842a5e256c5/js/suit.doc.js",
+      "https://raw.githubusercontent.com/suitjs/lapel/f9662c48b258e5acef893afbf0c2083e3b8646e8/js/lapel.doc.js",
+      "https://raw.githubusercontent.com/suitjs/wallet/d4e2eeee19b99e280136a644b9621073c227f490/js/wallet.doc.js",
+      "https://raw.githubusercontent.com/suitjs/servant/33078736e31dc8f5ef6f8b622a6c870027b8c54c/js/servant.doc.js",
+      "https://raw.githubusercontent.com/suitjs/reel/5971bb1d3a66b671b56a0458367bbb72717935f8/js/reel.doc.js"
+                     
+  ],
   "contributors": [
     "Gustavo Allebrandt <gustavoallebrandt@gmail.com"
   ]
